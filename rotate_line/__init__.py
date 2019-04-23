@@ -1,1 +1,1 @@
-from .functions import ra_weight, ra_map, RotateGen
+from .functions import rl_weight, rl_map, RotateGen

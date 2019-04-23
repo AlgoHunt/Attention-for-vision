@@ -156,7 +156,7 @@ rl_map = RL_Map.apply
 
 
 def is_same(tensorA, tensorB):
-    if torch.all(torch.abs(tensorA-tensorB) < 1e-4):
+    if torch.all(torch.abs(tensorA-tensorB) < 1e-6):
         return True
     else:
         return False
@@ -170,10 +170,9 @@ def test_rl_weight():
     rg = RotateGen(n, c, h, w, sample_num)
     rg.cuda()
     position_grid = rg(slope)
-
     # cuda forward
     weight = rl_weight(query, key, position_grid)
-
+    
     # cuda backward
     grad_key_cuda, grad_query_cuda, grad_position_cuda = \
         torch.autograd.grad(
@@ -192,6 +191,8 @@ def test_rl_weight():
     grad_key_py, grad_query_py, grad_position_py = \
         torch.autograd.grad(
             sim_map.sum(), [key, query, position_grid], retain_graph=True)
+
+    print(grad_key_cuda - grad_key_py)
 
     if is_same(sim_map, weight):
         print('rotate line attention weight forward correct')

@@ -65,10 +65,10 @@ int map_backward_cuda(const at::Tensor dout, at::Tensor weight, const at::Tensor
   return _map_backward_cuda(N, C, H, W, NumSample, dout, weight, g, pixel_position, dw, dg, dp);
 }
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  //m.def("forward", &ca_forward_cuda,"Mean and variance computation");
-  m.def("forward_cuda", &forward_cuda, "Mean and variance computation");
-  m.def("backward_cuda", &backward_cuda, "Mean and variance computation");
-  m.def("map_forward_cuda", &map_forward_cuda, "Mean and variance computation");
-  m.def("map_backward_cuda", &map_backward_cuda, "Mean and variance computation");
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
+{
+  m.def("forward_cuda", &forward_cuda, "compute attention map with key and query");
+  m.def("backward_cuda", &backward_cuda, "backward to key and query");
+  m.def("map_forward_cuda", &map_forward_cuda, "compute output with value and attention map");
+  m.def("map_backward_cuda", &map_backward_cuda, "backward to value and attention map");
 }
