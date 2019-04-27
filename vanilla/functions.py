@@ -13,13 +13,6 @@ from torch.nn import functional as F
 
 _src_path = path.dirname(path.abspath(__file__))
 
-if not socket.gethostname().startswith('msra'):
-    folder = 'torch' + str(random.random())[2:]
-    build_directory = os.path.join('/tmp', folder)
-    os.mkdir(build_directory)
-else:
-    build_directory = None
-
 try:
     import incenter_build as _ext
 except ImportError:
