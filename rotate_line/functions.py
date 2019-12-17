@@ -1,3 +1,11 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+# Created by: algohunt
+# Microsoft Research Asia & Peking University 
+# lilingzhi@pku.edu.cn
+# Copyright (c) 2019
+
+
 from os import path
 import torch
 import torch.autograd as autograd
@@ -14,7 +22,7 @@ _ext = load(name="rotate_line_attention",
                 "rotate_line.cpp",
                 "rotate_line.cu",
             ]],
-            extra_cuda_cflags=["--expt-extended-lambda"])
+            extra_cuda_cflags=["--expt-extended-lambda  -D_MWAITXINTRIN_H_INCLUDED -D__STRICT_ANSI__"])
 
 
 class RotateGen(nn.Module):
@@ -192,8 +200,7 @@ def test_rl_weight():
         torch.autograd.grad(
             sim_map.sum(), [key, query, position_grid], retain_graph=True)
 
-    print(grad_key_cuda - grad_key_py)
-
+   
     if is_same(sim_map, weight):
         print('rotate line attention weight forward correct')
     if is_same(grad_key_cuda, grad_key_py):

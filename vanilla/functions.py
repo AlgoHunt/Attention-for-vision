@@ -1,3 +1,11 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+# Created by: algohunt
+# Microsoft Research Asia & Peking University 
+# lilingzhi@pku.edu.cn
+# Copyright (c) 2019
+
+
 import math
 import socket
 import os
@@ -12,26 +20,20 @@ from torch import nn
 from torch.nn import functional as F
 
 _src_path = path.dirname(path.abspath(__file__))
-
-try:
-    import incenter_build as _ext
-except ImportError:
-    _ext = load(name="incenter_match_build",
-                extra_cflags=["-O3"],
-                sources=[path.join(_src_path, f) for f in [
-                    "vanilla.cpp",
-                    "vanilla.cu",
-                ]],
-                extra_cuda_cflags=["--expt-extended-lambda"],
-                build_directory=build_directory)
+_ext = load(name="incenter_match_build",
+            extra_cflags=["-O3"],
+            sources=[path.join(_src_path, f) for f in [
+                "vanilla.cpp",
+                "vanilla.cu",
+            ]],
+            extra_cuda_cflags=["--expt-extended-lambda  -D_MWAITXINTRIN_H_INCLUDED -D__STRICT_ANSI__"],
+            )
 
 
 def _check_contiguous(*args):
     if not all([mod is None or mod.is_contiguous() for mod in args]):
         raise ValueError("Non-contiguous input")
 
-
-# pixel_position : N, S, H, W, 2
 # weight : N,S,H,W
 class Vanilla_Weight(autograd.Function):
 
@@ -48,7 +50,7 @@ class Vanilla_Weight(autograd.Function):
         _check_contiguous(weight)
         ret = _ext.forward_cuda(t, f, weight)
         if ret == 0:
-            print('ra forward fail')
+            print('attention forward fail')
         # Output
         ctx.save_for_backward(t, f)
 
@@ -63,7 +65,7 @@ class Vanilla_Weight(autograd.Function):
         _check_contiguous(dt, df)
         ret = _ext.backward_cuda(dw.contiguous(), t, f, dt, df)
         if ret == 0:
-            print('ra backward fail')
+            print('attention backward fail')
         _check_contiguous(dt, df)
 
         return dt, df, None
@@ -76,7 +78,7 @@ class Vanilla_Map(autograd.Function):
         out = torch.zeros_like(g)
         ret = _ext.map_forward_cuda(weight, g, out)
         if ret == 0:
-            print('ra map forward fail')
+            print('attention map forward fail')
         # Output
         ctx.save_for_backward(weight, g)
 
@@ -91,7 +93,7 @@ class Vanilla_Map(autograd.Function):
         dg = torch.zeros_like(g)
         ret = _ext.map_backward_cuda(dout.contiguous(), weight, g, dw, dg)
         if ret == 0:
-            print('ra map  backward fail')
+            print('attention map  backward fail')
         _check_contiguous(dw, dg)
 
         return dw, dg, None
@@ -159,7 +161,6 @@ def test_vanilla_map():
     grad_value_py, grad_weight_py = torch.autograd.grad(
         out_py.mean(), [value, weight], retain_graph=True)
 
-    print(grad_value_cuda-grad_value_py)
     if is_same(grad_value_cuda, grad_value_py):
         print('value grad correct')
 

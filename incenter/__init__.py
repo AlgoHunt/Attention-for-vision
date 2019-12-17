@@ -5,5 +5,4 @@
 # lilingzhi@pku.edu.cn
 # Copyright (c) 2019
 
-
-from .functions import vailla_weight, vailla_map
+from .functions import ia_weight, ia_map
