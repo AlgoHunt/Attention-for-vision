@@ -187,8 +187,8 @@ __global__ void ia_map_backward_kernel_g(const T *dout, const T *weight, const T
       for (int idx = 0; idx < sampleNum; ++idx) {
 
 
-        int ix = x + idx % w_num - w_num / 2;
-        int iy = y + idx / w_num - h_num / 2;
+        int ix = x + idx % w_num - w_num / 2 - w_num % 2 + 1;
+        int iy = y + idx / w_num - h_num / 2 - h_num % 2 + 1;
 
         if (within_bounds_2d(iy, ix, height, width)){
 
