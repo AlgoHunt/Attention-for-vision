@@ -42,7 +42,7 @@ __global__ void ia_forward_kernel(const T *t, const T *f, T *weight, int num, in
 
 
         int ix = x + z % w_num - w_num / 2;
-        int iy = y + z / h_num - h_num / 2;
+        int iy = y + z / w_num - h_num / 2;
         if (within_bounds_2d(iy, ix, height, width)){
           float _t = t[((batch * chn + plane) * height + y)*width + x];
           float _f = f[((batch * chn + plane) * height + iy)*width + ix];
@@ -85,7 +85,7 @@ __global__ void ia_backward_kernel_all(const T *dw, const T *t, const T *f, T *d
       {
 
         ix = x + idx % w_num - w_num / 2;
-        iy = y + idx / h_num - h_num / 2;
+        iy = y + idx / w_num - h_num / 2;
 
         if (within_bounds_2d(iy, ix, height, width))
         {
@@ -123,7 +123,7 @@ __global__ void ia_map_forward_kernel(const T *weight, const T *g, T *out,
       {
 
         int ix = x + idx % w_num - w_num / 2;
-        int iy = y + idx / h_num - h_num / 2;
+        int iy = y + idx / w_num - h_num / 2;
 
         if (within_bounds_2d(iy, ix, height, width))
         {
@@ -157,7 +157,7 @@ __global__ void ia_map_backward_kernel_w(const T *dout, const T *weight, const T
         float _dout = dout[(batch * chn + plane) * sp + y*width + x];
 
         int ix = x + z % w_num - w_num / 2;
-        int iy = y + z / h_num - h_num / 2;
+        int iy = y + z / w_num - h_num / 2;
         if (within_bounds_2d(iy, ix, height, width)){
           float _g = g[(batch * chn + plane) * sp + iy*width + ix];
           dw[((batch * sampleNum + z)*height + y)*width + x] += _dout * _g;
@@ -188,7 +188,7 @@ __global__ void ia_map_backward_kernel_g(const T *dout, const T *weight, const T
 
 
         int ix = x + idx % w_num - w_num / 2;
-        int iy = y + idx / h_num - h_num / 2;
+        int iy = y + idx / w_num - h_num / 2;
 
         if (within_bounds_2d(iy, ix, height, width)){
 
